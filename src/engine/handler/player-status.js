@@ -13,8 +13,8 @@ class PlayerStatusHandler {
     const players = game.getPlayers().map(player => player.id);
 
     this.messagesToSocketStream$.next(multiTargetMessage(players, 'game-status', {
+      gameId: game.getId(),
       players: game.getPlayers().map(player => ({
-        gameId: game.getId(),
         id: player.getId(),
         currentCharacter: player.currentCharacter,
         winner: player.isWinner()
@@ -26,7 +26,7 @@ class PlayerStatusHandler {
       this.games.addScore(game.getPlayer(message.payload.playerId).name, game.startTime, Date.now())
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'player-finished', {
         gameId: game.getId(),
-        id: message.payload.playerId,
+        playerId: message.payload.playerId,
         winner: true
       }))
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'highscores', {
