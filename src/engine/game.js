@@ -38,6 +38,10 @@ class Game extends EventEmitter {
     return this.players.length >= MINIMUM_PLAYERS
   }
 
+  isRunning() {
+    return this.state !== states.WAITING_FOR_PLAYERS
+  }
+
   addPlayer(player) {
     this.players.push(player)
   }

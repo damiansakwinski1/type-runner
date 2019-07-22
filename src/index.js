@@ -12,6 +12,16 @@ const Games = require('./engine/games')
 
 const messagesToSocketStream$ = new Subject()
 
+process.on('unhandledRejection', err => {
+  console.log(err)
+  process.exit(1)
+})
+
+process.on('uncaughtException', err => {
+  console.log(err)
+  process.exit(1)
+})
+
 const games = new Games()
 
 const handlers = new Handlers({
@@ -36,6 +46,7 @@ const spectatorMessages = filterMessages([
 
 io.on('connection', socket => {
   socket.on('message', message => {
+    //console.log(message)
     handlers.handle({
       ...message,
       socketId: socket.id
@@ -51,6 +62,7 @@ io.on('connection', socket => {
 });
 
 messagesToSocketStream$.subscribe(message => {
+  //console.log(message)
   message.target.forEach(id => {
     io.to(id).emit('message', {
       type: message.type,

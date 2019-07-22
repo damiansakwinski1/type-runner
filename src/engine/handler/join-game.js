@@ -38,7 +38,7 @@ class JoinGameHandler {
       player: newPlayer
     }))
 
-    if (game.hasEnoughPlayers()) {
+    if (game.hasEnoughPlayers() && !game.isRunning()) {
       game.startCountdown()
 
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'start-countdown', {
