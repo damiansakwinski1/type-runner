@@ -8,20 +8,22 @@ class LeaveGameHandler {
 
   handle(message) {
     const removedPlayers = this.games.removePlayerFromOpenGames(message.socketId)
+    removedPlayers.forEach(
+      removedPlayer => {
+        const game = this.games.getOpenGameById(removedPlayer.gameId)
 
-    const players = removedPlayers.map(
-      removedPlayer => this.games.getOpenGameById(removedPlayer.gameId).getPlayers()
-      ).flat().map(player => player.getId())
-
-    this.messagesToSocketStream$.next(
-      multiTargetMessage(
-        players,
-        'left-game',
-        {
-          playerId: message.socketId
-        }
-      )
-    )
+        this.messagesToSocketStream$.next(
+          multiTargetMessage(
+            game.getPlayers().map(player => player.getId()),
+            'left-game',
+            {
+              playerId: message.socketId,
+              stopCountdown: !game.hasEnoughPlayers()
+            }
+          )
+        )
+      }
+    );
   }
 }
 

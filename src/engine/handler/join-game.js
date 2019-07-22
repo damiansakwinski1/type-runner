@@ -42,7 +42,8 @@ class JoinGameHandler {
       game.startCountdown()
 
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'start-countdown', {
-        gameId: game.getId()
+        gameId: game.getId(),
+        countdown: 10000
       }))
     }
   }
