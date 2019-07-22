@@ -4,6 +4,7 @@ const io = require('socket.io')(http);
 const { Subject } = require('rxjs')
 const Handlers = require('./engine/handlers')
 const JoinGame = require('./engine/handler/join-game')
+const LeaveGame = require('./engine/handler/leave-game')
 const PlayerStatus = require('./engine/handler/player-status')
 const Spectate = require('./engine/handler/spectate')
 const Highscores = require('./engine/handler/highscores')
@@ -17,7 +18,8 @@ const handlers = new Handlers({
   'join-game': new JoinGame(games, messagesToSocketStream$),
   'player-status': new PlayerStatus(games, messagesToSocketStream$),
   'spectate': new Spectate(games, messagesToSocketStream$),
-  'highscores': new Highscores(games, messagesToSocketStream$)
+  'highscores': new Highscores(games, messagesToSocketStream$),
+  'leave-game': new LeaveGame(games, messagesToSocketStream$)
 })
 
 const filterMessages = messages => message => {
@@ -41,7 +43,10 @@ io.on('connection', socket => {
   })
 
   socket.on('disconnect', () => {
-    games.removePlayerFromOpenGames(socket.id)
+    handlers.handle({
+      type: 'leave-game',
+      socketId: socket.id
+    })
   })
 });
 

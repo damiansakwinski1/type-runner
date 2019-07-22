@@ -47,11 +47,24 @@ class Games {
   }
 
   removePlayerFromOpenGames(playerId) {
+    const removedPlayers = []
+
     Object.values(this.openGames).forEach(game => {
       if (game.hasPlayer(playerId)) {
         game.removePlayer(playerId)
+
+        removedPlayers.push({
+          gameId: game.getId(),
+          playerId
+        })
       }
     })
+
+    return removedPlayers
+  }
+  
+  getOpenGameById(gameId) {
+    return this.openGames[gameId]
   }
 
   getGameById(gameId) {
