@@ -102,6 +102,7 @@ Each message has a format of:
   type: 'start-countdown',
   payload: {
     gameId: <game-id>,
+    countdown: <length-in-miliseconds>
   }
 }
 ```
@@ -171,5 +172,18 @@ Each message has a format of:
       score: <number-of-seconds>
     }
   ]
+}
+```
+
+### left-game - after player left game
+
+```
+{
+  type: 'left-game',
+  payload: {
+    gameId: <game-id>,
+    playerId: <player-id>,
+    stopCountdown: <true | false>
+  }
 }
 ```

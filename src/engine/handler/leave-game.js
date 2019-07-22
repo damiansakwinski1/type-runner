@@ -17,6 +17,7 @@ class LeaveGameHandler {
             game.getPlayers().map(player => player.getId()),
             'left-game',
             {
+              gameId: game.getId(),
               playerId: message.socketId,
               stopCountdown: !game.hasEnoughPlayers()
             }
