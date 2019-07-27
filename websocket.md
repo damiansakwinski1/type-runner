@@ -66,6 +66,7 @@ Each message has a format of:
   type: 'joined-game',
   payload: {
     id: <game-id>,
+    countdown: <length-of-countdownd-in-seconds>,
     players: [
       {
         id: <plaayer-id>,
@@ -102,7 +103,31 @@ Each message has a format of:
   type: 'start-countdown',
   payload: {
     gameId: <game-id>,
-    countdown: <length-in-miliseconds>
+    countdown: <length-in-seconds>
+  }
+}
+```
+
+### countdown-tick - after every tick of countdown
+
+```
+{
+  type: 'countdown-tick',
+  payload: {
+    gameId: <game-id>,
+    countdown: <length-in-seconds>
+  }
+}
+```
+
+### game-time-sync - after every tick of game time length, used for synchro
+
+```
+{
+  type: 'game-time-sync',
+  payload: {
+    gameId: <game-id>,
+    gameLength: <left-time-in-seconds>
   }
 }
 ```
@@ -114,7 +139,8 @@ Each message has a format of:
   type: 'text-drown',
   payload: {
     gameId: <game-id>,
-    text: <text-to-be-typed>
+    text: <text-to-be-typed>,
+    maxGameLength: <game-length-in-seconds>
   }
 }
 ```

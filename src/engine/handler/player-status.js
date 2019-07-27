@@ -27,7 +27,7 @@ class PlayerStatusHandler {
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'player-finished', {
         gameId: game.getId(),
         playerId: message.payload.playerId,
-        winner: true
+        winner: game.isWinner(message.payload.playerId)
       }))
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'highscores', {
         scores: this.games.getHighscores()

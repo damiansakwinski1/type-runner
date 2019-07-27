@@ -5,7 +5,10 @@ const { texts } = require('../../texts')
 
 const MINIMUM_PLAYERS = 2
 const MAXIMUM_PLAYERS = 4
-const COUNTDOWN_LENGTH = 5000
+const LOCK_COUNTDOWN = 5000
+const PRE_LOCK_COUNTDOWN = 5000
+const GAME_TICK = 30000
+const MAX_GAME_TICKS = 6
 
 class Game extends EventEmitter {
   constructor() {
@@ -13,9 +16,14 @@ class Game extends EventEmitter {
     this.id = v4()
     this.players = []
     this.state = states.WAITING_FOR_PLAYERS
-    this.countdown = null
     this.text = null
     this.startTime = 0
+    this.countdownTimeout = null
+    this.gameTimeout = null
+    this.currentCountdown = (LOCK_COUNTDOWN + PRE_LOCK_COUNTDOWN) / 1000
+    this.maxGameLength = GAME_TICK / 1000 * MAX_GAME_TICKS
+    this.gameLength = GAME_TICK / 1000 * MAX_GAME_TICKS
+    this.winner = null
   }
 
   getId() {
@@ -63,34 +71,83 @@ class Game extends EventEmitter {
     }
   }
 
-  startCountdown() {
+  startPreLockCountdown() {
     this.state = states.COUNTDOWN
+    this.currentCountdown = (LOCK_COUNTDOWN + PRE_LOCK_COUNTDOWN) / 1000
 
-    this.countdown = setTimeout(() => {
-      this.lock()
-      this.text = texts[Math.floor(Math.random() * Math.random() * texts.length)]
-      this.emit('game-locked', this.text)
-    }, COUNTDOWN_LENGTH)
+    const handlePreLockTimeout = () => {
+      this.currentCountdown -= 1
+
+      this.emit('countdown-tick', this.currentCountdown)
+
+      if (this.currentCountdown > 5) {
+        this.countdownTimeout = setTimeout(handlePreLockTimeout, 1000)
+      } else {
+        this.lock()
+
+      }
+    }
+
+    this.countdownTimeout = setTimeout(handlePreLockTimeout, 1000)
   }
 
   stopCountdown() {
-    clearTimeout(this.countdown)
-    this.countdown = null
+    clearTimeout(this.countdownTimeout)
+    this.emit('countdown-stopped')
+    this.countdownTimeout = null
+    this.currentCountdown = (PRE_LOCK_COUNTDOWN + LOCK_COUNTDOWN) / 1000
   }
 
   lock() {
     this.state = states.LOCKED
+    this.text = texts[Math.floor(Math.random() * Math.random() * texts.length)]
+    this.emit('game-locked', this.text)
+    
+    const handleLockTimeout = () => {
+      this.currentCountdown -= 1
 
-    this.countdown = null;
-    setTimeout(() => {
-      this.emit('countdown-finished', this.text)
-      this.startTime = Date.now()
-    }, COUNTDOWN_LENGTH)
+      this.emit('countdown-tick', this.currentCountdown)
+
+      if (this.currentCountdown > 0) {
+        this.countdownTimeout = setTimeout(handleLockTimeout, 1000)
+      } else {
+        this.emit('countdown-finished', this.text)
+        this.startTime = Date.now()
+        this.countdownTimeout = null
+      }
+    }
+
+    this.countdownTimeout = setTimeout(handleLockTimeout, 1000)
+  }
+
+  startGameTime() {
+    const handleSyncTimeout = () => {
+      this.gameLength -= GAME_TICK / 1000
+
+      this.emit('game-time-tick', this.gameLength)
+
+      if (this.gameLength > 0) {
+        this.gameTimeout = setTimeout(handleSyncTimeout, GAME_TICK)
+      } else {
+        this.emit('game-time-finished')
+      }
+    }
+
+    setTimeout(handleSyncTimeout, GAME_TICK)
+  }
+
+  isWinner(playerId) {
+    return this.winner && this.winner.getId() === playerId
   }
 
   updatePlayerStatus(playerId, currentCharacter) {
     const player = this.players.find(player => player.getId() === playerId)
     player.update(currentCharacter, this.text.length === currentCharacter)
+
+    if (player.isWinner()) {
+      this.winner = player
+      clearTimeout(this.gameTimeout)
+    }
   }
 }
 

@@ -10,15 +10,38 @@ class JoinGameHandler {
   handle(message) {
     const game = this.games.findOpenGame() || this.games.newGame()
       .on('countdown-finished', () => {
+        this.games.run(game.getId())
         this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'start-game', {
           gameId: game.getId()
         }))
       }) 
       .on('game-locked', text => {
-        this.games.run(game.getId())
         this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'text-drawn', {
           gameId: game.getId(),
-          text
+          text,
+          maxGameLength: game.maxGameLength
+        }))
+      })
+      .on('countdown-stopped', () => {
+        this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'reset-countdown', {
+          gameId: game.getId()
+        }))
+      })
+      .on('countdown-tick', () => {
+        this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'countdown-tick', {
+          gameId: game.getId(),
+          countdown: game.currentCountdown
+        }))
+      })
+      .on('game-time-tick', () => {
+        this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'game-time-sync', {
+          gameId: game.getId(),
+          gameLength: game.gameLength
+        }))
+      })
+      .on('game-time-finished', () => {
+        this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'game-finished', {
+          gameId: game.getId(),
         }))
       })
 
@@ -30,7 +53,8 @@ class JoinGameHandler {
 
     this.messagesToSocketStream$.next(singleTargetMessage(newPlayer.id, 'joined-game', {
       id: game.getId(),
-      players: game.getPlayers()
+      players: game.getPlayers(),
+      countdown: game.currentCountdown
     }))
 
     this.messagesToSocketStream$.next(multiTargetMessage(players.filter(player => player !== newPlayer.id), 'player-joined', {
@@ -39,11 +63,11 @@ class JoinGameHandler {
     }))
 
     if (game.hasEnoughPlayers() && !game.isRunning()) {
-      game.startCountdown()
+      game.startPreLockCountdown()
 
       this.messagesToSocketStream$.next(multiTargetMessage(players, 'start-countdown', {
         gameId: game.getId(),
-        countdown: 10000
+        countdown: game.currentCountdown
       }))
     }
   }

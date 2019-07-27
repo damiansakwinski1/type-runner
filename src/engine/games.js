@@ -1,6 +1,6 @@
 const Game = require('./game')
 
-const MAX_GAME_LENGTH = 3 * 60 * 1000
+const GAME_REMOVE_TIME = 4 * 60 * 1000
 
 class Games {
   constructor() {
@@ -19,8 +19,10 @@ class Games {
   }
 
   run(id) {
-    this.runningGames[id] = Object.assign( Object.create( Object.getPrototypeOf(this.openGames[id])), this.openGames[id])
+    this.runningGames[id] = this.openGames[id]
     delete this.openGames[id]
+
+    this.runningGames[id].startGameTime()
 
     this.limitGameLength(id)
   }
@@ -34,7 +36,7 @@ class Games {
       if (this.runningGames[gameId]) {
         delete this.runningGames[gameId]
       }
-    }, MAX_GAME_LENGTH)
+    }, GAME_REMOVE_TIME)
   }
 
   finishGame(id) {

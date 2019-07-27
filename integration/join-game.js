@@ -52,7 +52,7 @@ describe('Game tests', () => {
                   currentCharacter: text.length
                 }
               })
-            }, 3000)
+            }, 48000)
           }
         })
 
@@ -73,5 +73,5 @@ describe('Game tests', () => {
           }
         })
       })
-  }).timeout(200000)
+  }).timeout(2000000)
 })
