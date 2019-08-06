@@ -1,6 +1,10 @@
 const app = require('express')();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const fs = require('fs')
+const https = require('https').createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert')
+},app);
+const io = require('socket.io')(https);
 const { Subject } = require('rxjs')
 const Handlers = require('./engine/handlers')
 const JoinGame = require('./engine/handler/join-game')
@@ -80,6 +84,6 @@ messagesToSocketStream$.subscribe(message => {
   }
 })
 
-http.listen(3000, () => {
+https.listen(3000, () => {
   console.log('listening on port 3000')
 })
