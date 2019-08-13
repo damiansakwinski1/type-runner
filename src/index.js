@@ -84,6 +84,6 @@ messagesToSocketStream$.subscribe(message => {
   }
 })
 
-https.listen(3000, () => {
+https.listen(8443, () => {
   console.log('listening on port 3000')
 })
