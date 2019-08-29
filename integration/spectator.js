@@ -11,9 +11,9 @@ describe('Spectator tests', () => {
   let spectator;
 
   before(() => {
-    client1 = socket('http://localhost:3000')
-    client2 = socket('http://localhost:3000')
-    spectator = socket('http://localhost:3000')
+    client1 = socket('https://localhost:8443')
+    client2 = socket('https://localhost:8443')
+    spectator = socket('https://localhost:8443')
   })
 
   it('join game as single user', (done) => {

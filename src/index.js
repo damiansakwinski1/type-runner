@@ -4,7 +4,9 @@ const https = require('https').createServer({
   key: fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.cert')
 },app);
-const io = require('socket.io')(https);
+const http = require('http').createServer(app);
+
+const io = require('socket.io')(process.env.NODE_ENV === 'test' ? http: https);
 const { Subject } = require('rxjs')
 const Handlers = require('./engine/handlers')
 const JoinGame = require('./engine/handler/join-game')
@@ -84,6 +86,12 @@ messagesToSocketStream$.subscribe(message => {
   }
 })
 
-https.listen(8443, () => {
-  console.log('listening on port 3000')
-})
+if (process.env.NODE_ENV === 'test') {
+  http.listen(8443, () => {
+    console.log('listening on port 8443')
+  })
+} else {
+  https.listen(8443, () => {
+    console.log('listening on port 8443')
+  })
+}

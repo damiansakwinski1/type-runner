@@ -142,12 +142,18 @@ class Game extends EventEmitter {
 
   updatePlayerStatus(playerId, currentCharacter) {
     const player = this.players.find(player => player.getId() === playerId)
-    player.update(currentCharacter, this.text.length === currentCharacter)
+    if (player) {
+      player.update(currentCharacter, this.text.length === currentCharacter)
 
-    if (player.isWinner()) {
-      this.winner = player
-      clearTimeout(this.gameTimeout)
+      if (player.isWinner()) {
+        this.winner = player
+        clearTimeout(this.gameTimeout)
+      }
+
+      return true
     }
+
+    return false
   }
 }
 

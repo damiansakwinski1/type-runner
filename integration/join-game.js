@@ -6,8 +6,8 @@ describe('Game tests', () => {
   let client2;
 
   before(() => {
-    client1 = socket('http://localhost:3000')
-    client2 = socket('http://localhost:3000')
+    client1 = socket('http://localhost:8443')
+    client2 = socket('http://localhost:8443')
   })
 
   it('join game as single user', (done) => {
@@ -52,7 +52,13 @@ describe('Game tests', () => {
                   currentCharacter: text.length
                 }
               })
-            }, 48000)
+
+              setTimeout(() => {
+                client1.disconnect()
+                client2.disconnect()
+                done()
+              }, 2000)
+            }, 15000)
           }
         })
 
