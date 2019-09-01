@@ -40,6 +40,7 @@ class Games {
   }
 
   finishGame(id) {
+    this.runningGames[id].removeAllListeners()
     delete this.runningGames[id]
   }
 
