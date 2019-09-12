@@ -92,7 +92,7 @@ if (process.env.NODE_ENV === "test") {
     console.log("listening on port 8443");
   });
 } else {
-  https.listen(8443, () => {
+  http.listen(8443, () => {
     console.log("listening on port 8443");
   });
 }
