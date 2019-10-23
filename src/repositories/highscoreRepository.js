@@ -1,18 +1,26 @@
 module.exports = db => {
-  const highScores = [];
   return {
-    test() {
-      db.connect();
-      db.query("SELECT $1::text as message", ["Hello world!"], (err, res) => {
-        console.log(err ? err.stack : res.rows[0].message); // Hello World!
-        db.end();
-      });
+    async getHighScores() {
+      try {
+        const { rows } = await db.query(
+          `SELECT name, score FROM "HighScores" ORDER BY SCORE ASC LIMIT 10`
+        );
+        return rows.map(({ name, score }) => ({ name, score }));
+      } catch (err) {
+        console.log(err.stack);
+      }
     },
-    getHighScores() {
-      return Promise.resolve(highScores);
-    },
-    addHighScore(name, score) {
-      highScores.push({ name, score });
+    async addHighScore(name, score) {
+      try {
+        const query = {
+          text: `INSERT INTO "HighScores"(name, score) VALUES($1, $2)`,
+          values: [name, score]
+        };
+
+        db.query(query);
+      } catch (err) {
+        console.log(err.stack);
+      }
     }
   };
 };
