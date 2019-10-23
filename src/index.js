@@ -1,12 +1,5 @@
 const app = require("express")();
 const fs = require("fs");
-const https = require("https").createServer(
-  {
-    key: fs.readFileSync("server.key"),
-    cert: fs.readFileSync("server.cert")
-  },
-  app
-);
 const http = require("http").createServer(app);
 
 const io = require("socket.io")(process.env.NODE_ENV === "test" ? http : http);
@@ -18,7 +11,8 @@ const PlayerStatus = require("./engine/handler/player-status");
 const Spectate = require("./engine/handler/spectate");
 const Highscores = require("./engine/handler/highscores");
 const Games = require("./engine/games");
-
+const db = require("./connection");
+const highscoreRepository = require("./repositories/highscoreRepository")(db);
 const messagesToSocketStream$ = new Subject();
 
 process.on("unhandledRejection", err => {
@@ -31,7 +25,7 @@ process.on("uncaughtException", err => {
   process.exit(1);
 });
 
-const games = new Games();
+const games = new Games(highscoreRepository);
 
 const handlers = new Handlers({
   "join-game": new JoinGame(games, messagesToSocketStream$),
@@ -52,16 +46,16 @@ const filterMessages = messages => message => {
 const spectatorMessages = filterMessages(["joined-game"]);
 
 io.on("connection", socket => {
-  socket.on("message", message => {
+  socket.on("message", async message => {
     //console.log(message)
-    handlers.handle({
+    await handlers.handle({
       ...message,
       socketId: socket.id
     });
   });
 
-  socket.on("disconnect", () => {
-    handlers.handle({
+  socket.on("disconnect", async () => {
+    await handlers.handle({
       type: "leave-game",
       socketId: socket.id
     });
