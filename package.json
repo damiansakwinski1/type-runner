@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "node-pg-migrate"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,7 @@
   "dependencies": {
     "dotenv-safe": "^8.1.0",
     "express": "^4.17.1",
+    "node-pg-migrate": "^3.23.3",
     "pg": "^7.12.1",
     "rxjs": "^6.5.2",
     "socket.io": "^2.2.0",
