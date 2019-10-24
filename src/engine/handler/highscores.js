@@ -1,16 +1,18 @@
-const { singleTargetMessage } = require('../../message/socket-message')
+const { singleTargetMessage } = require("../../message/socket-message");
 
 class HighscoresHandler {
   constructor(games, messagesToSocketStream$) {
-    this.games = games
-    this.messagesToSocketStream$ = messagesToSocketStream$
+    this.games = games;
+    this.messagesToSocketStream$ = messagesToSocketStream$;
   }
 
-  handle(message) {
-    this.messagesToSocketStream$.next(singleTargetMessage(message.socketId, 'highscores', {
-      scores: this.games.getHighscores()
-    }))
+  async handle(message) {
+    this.messagesToSocketStream$.next(
+      singleTargetMessage(message.socketId, "highscores", {
+        scores: await this.games.getHighscores()
+      })
+    );
   }
 }
 
-module.exports = HighscoresHandler
+module.exports = HighscoresHandler;

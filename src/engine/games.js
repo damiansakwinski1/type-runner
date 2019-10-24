@@ -3,11 +3,11 @@ const Game = require("./game");
 const GAME_REMOVE_TIME = 4 * 60 * 1000;
 
 class Games {
-  constructor() {
+  constructor(highScoreRepository) {
     this.openGames = {};
     this.runningGames = {};
     this.spectators = [];
-    this.highscores = [];
+    this.highscores = highScoreRepository;
   }
 
   newGame() {
@@ -76,17 +76,12 @@ class Games {
 
   addScore(name, startTime, endTime) {
     const score = (endTime - startTime) / 1000;
-
-    this.highscores.push({
-      name,
-      score
-    });
-
-    this.highscores.sort((a, b) => a.score - b.score);
+    this.highscores.addHighScore(name, score);
   }
 
-  getHighscores() {
-    return this.highscores.slice(0, 10);
+  async getHighscores() {
+    const highScores = await this.highscores.getHighScores();
+    return highScores || [];
   }
 }
 
