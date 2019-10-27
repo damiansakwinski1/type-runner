@@ -16,4 +16,5 @@ tmp
 /.npmrc
 server.cert
 server.key
-docker-compose.override.yml
+!docker-compose.override.yml
+!docker-compose.prod.yml

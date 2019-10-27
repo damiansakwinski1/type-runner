@@ -1,6 +1,5 @@
 (async () => {
   const app = require("express")();
-  const fs = require("fs");
   const http = require("http").createServer(app);
 
   const io = require("socket.io")(

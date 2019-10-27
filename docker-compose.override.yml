@@ -13,21 +13,10 @@ services:
     networks:
       - app
 
-  app:
-    build:
-      context: .
-    volumes:
-      - ./:/typerunner
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-    networks:
-      - app
-    command: [sh, -c, "node src/index.js"]
-
   postgres:
     image: postgres:10-alpine
+    ports:
+      - 5432:5432
     env_file:
       - .env
     networks:
