@@ -9,11 +9,19 @@ services:
       - .env
     depends_on:
       - postgres
+      - spa
     networks:
       - app
     command: [sh, -c, "node src/index.js"]
     ports:
       - 8443:8443
+
+  spa:
+    image: type-runner-spa:latest
+    ports:
+      - "80:80"
+    networks:
+      - app
 
   postgres:
     image: postgres:10-alpine
