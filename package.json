@@ -9,7 +9,7 @@
     "migrate": "docker-compose run --rm js ./node_modules/.bin/node-pg-migrate up",
     "down": "docker-compose down",
     "shell": "docker-compose run --rm js sh",
-    "start-prod": "docker-compose -f docker-compose.prod.yml up -d postgres && npm run migrate && docker-compose -f docker-compose.prod.yml up app"
+    "start-prod": "docker-compose -f docker-compose.prod.yml up -d postgres && npm run migrate && docker-compose -f docker-compose.prod.yml up -d app"
   },
   "keywords": [],
   "author": "",
