@@ -1,10 +1,21 @@
 (async () => {
+  const fs = require("fs");
+  const path = require("path");
   const app = require("express")();
   const http = require("http").createServer(app);
+  const https = require("https").createServer(
+    {
+      key: fs.readFileSync(path.resolve("..", "server.key"), "utf8"),
+      cert: fs.readFileSync(path.resolve("..", "server.cert"), "utf8"),
+      ca: fs.readFileSync(path.resolve("..", "server.ca"), "utf8")
+    },
+    app
+  );
 
   const io = require("socket.io")(
-    process.env.NODE_ENV === "test" ? http : http
+    process.env.NODE_ENV === "test" ? http : https
   );
+
   const { Subject } = require("rxjs");
   const Handlers = require("./engine/handlers");
   const JoinGame = require("./engine/handler/join-game");
@@ -86,7 +97,7 @@
       console.log("listening on port 8443");
     });
   } else {
-    http.listen(8443, () => {
+    https.listen(8443, () => {
       console.log("listening on port 8443");
     });
   }
