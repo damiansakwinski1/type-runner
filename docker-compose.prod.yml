@@ -26,6 +26,7 @@ services:
       - /etc/letsencrypt/live/typerunner.tsh.io/:/var/lib/letsencrypt/live/typerunner.tsh.io/
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - app
 
