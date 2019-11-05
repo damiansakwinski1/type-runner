@@ -5,9 +5,12 @@
   const http = require("http").createServer(app);
   const https = require("https").createServer(
     {
-      key: fs.readFileSync(path.resolve("..", "server.key"), "utf8"),
-      cert: fs.readFileSync(path.resolve("..", "server.cert"), "utf8"),
-      ca: fs.readFileSync(path.resolve("..", "server.ca"), "utf8")
+      key: fs.readFileSync(path.resolve(__dirname, "..", "server.key"), "utf8"),
+      cert: fs.readFileSync(
+        path.resolve(__dirname, "..", "server.cert"),
+        "utf8"
+      ),
+      ca: fs.readFileSync(path.resolve(__dirname, "..", "server.ca"), "utf8")
     },
     app
   );
