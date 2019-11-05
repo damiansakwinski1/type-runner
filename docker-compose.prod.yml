@@ -23,7 +23,8 @@ services:
   spa:
     image: type-runner-spa:latest
     volumes:
-      - /etc/letsencrypt/live/typerunner.tsh.io/:/var/lib/letsencrypt/live/typerunner.tsh.io/
+      - /etc/letsencrypt/live/typerunner.tsh.io/fullchain.pem:/var/lib/letsencrypt/live/typerunner.tsh.io/fullchain.pem
+      - /etc/letsencrypt/live/typerunner.tsh.io/privkey.pem:/var/lib/letsencrypt/live/typerunner.tsh.io/privkey.pem
     ports:
       - "80:80"
       - "443:443"
