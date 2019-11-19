@@ -6,7 +6,7 @@ const { texts } = require("../../texts");
 const MINIMUM_PLAYERS = 2;
 const MAXIMUM_PLAYERS = 4;
 const LOCK_COUNTDOWN = 5000;
-const PRE_LOCK_COUNTDOWN = 5000;
+const PRE_LOCK_COUNTDOWN = 10000;
 const GAME_TICK = 30000;
 const MAX_GAME_TICKS = 6;
 
