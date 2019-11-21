@@ -22,6 +22,7 @@
   const { Subject } = require("rxjs");
   const Handlers = require("./engine/handlers");
   const JoinGame = require("./engine/handler/join-game");
+  const JoinPractice = require("./engine/handler/join-practice");
   const LeaveGame = require("./engine/handler/leave-game");
   const PlayerStatus = require("./engine/handler/player-status");
   const Spectate = require("./engine/handler/spectate");
@@ -48,7 +49,8 @@
     "player-status": new PlayerStatus(games, messagesToSocketStream$),
     spectate: new Spectate(games, messagesToSocketStream$),
     highscores: new Highscores(games, messagesToSocketStream$),
-    "leave-game": new LeaveGame(games, messagesToSocketStream$)
+    "leave-game": new LeaveGame(games, messagesToSocketStream$),
+    "join-practice": new JoinPractice(games, messagesToSocketStream$),
   });
 
   const filterMessages = messages => message => {

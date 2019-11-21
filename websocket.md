@@ -28,6 +28,17 @@ Each message has a format of:
 }
 ```
 
+### join-practice - in order to join practice game
+
+```
+{
+  type: 'join-game',
+  payload: {
+    name: <username>
+  }
+}
+```
+
 ### player-status - in order to update status of a player for other users
 
 ```
@@ -152,6 +163,7 @@ Each message has a format of:
   type: 'start-game',
   payload: {
     gameId: <game-id>,
+    gameType: 'normal' | 'practice',
   }
 }
 ```
@@ -182,7 +194,8 @@ Each message has a format of:
   payload: {
     gameId: <game-id>,
     playerId: <player-id>,
-    winner: true
+    winner: true,
+    score: <number-of-seconds>
   }
 }
 ```

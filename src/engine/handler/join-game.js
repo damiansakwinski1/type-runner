@@ -3,18 +3,19 @@ const { singleTargetMessage, multiTargetMessage } = require('../../message/socke
 
 class JoinGameHandler {
   constructor(games, messagesToSocketStream$) {
-    this.games = games
+    this.games = games;
     this.messagesToSocketStream$ = messagesToSocketStream$
   }
 
   handle(message) {
     const game = this.games.findOpenGame() || this.games.newGame()
       .on('countdown-finished', () => {
-        this.games.run(game.getId())
+        this.games.run(game);
         this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'start-game', {
-          gameId: game.getId()
+          gameId: game.getId(),
+          gameType: game.getType(),
         }))
-      }) 
+      })
       .on('game-locked', text => {
         this.messagesToSocketStream$.next(multiTargetMessage(game.getPlayers().map(player => player.id), 'text-drawn', {
           gameId: game.getId(),
