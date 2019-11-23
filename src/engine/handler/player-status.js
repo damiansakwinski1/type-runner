@@ -1,6 +1,4 @@
 const { multiTargetMessage } = require("../../message/socket-message");
-const { PRACTICE } = require('./../game-types');
-const { calculateScore } = require('./../utils/calculateScore');
 
 class PlayerStatusHandler {
   constructor(games, messagesToSocketStream$) {
@@ -31,35 +29,22 @@ class PlayerStatusHandler {
         );
 
         if (game.hasFinished(message.payload.currentCharacter)) {
-          this.games.finishGame(game.getId());
-          const score = calculateScore(game.startTime, Date.now());
-
+          const score = await this.games.finishGame(game.getId());
 
           this.messagesToSocketStream$.next(
             multiTargetMessage(players, "player-finished", {
               gameId: game.getId(),
               playerId: message.payload.playerId,
               winner: game.isWinner(message.payload.playerId),
-              score,
+              score
             })
           );
-
-          if(game.getType() !== PRACTICE){
-            this.games.addScore(
-              game.getPlayer(message.payload.playerId).name,
-              score
-            );
-
-            this.messagesToSocketStream$.next(
-              multiTargetMessage(players, "highscores", {
-                scores: await this.games.getHighscores()
-              })
-            );
-          }
         }
       }
     }
   }
 }
+
+PlayerStatusHandler.TYPE = "player-status";
 
 module.exports = PlayerStatusHandler;

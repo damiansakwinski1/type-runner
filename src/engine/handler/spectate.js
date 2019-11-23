@@ -1,12 +1,14 @@
 class SpectateHandler {
   constructor(games, messagesToSocketStream$) {
-    this.games = games
-    this.messagesToSocketStream$ = messagesToSocketStream$
+    this.games = games;
+    this.messagesToSocketStream$ = messagesToSocketStream$;
   }
 
   handle(message) {
-    this.games.addSpectator(message.socketId)
+    this.games.addSpectator(message.socketId);
   }
 }
 
-module.exports = SpectateHandler
+SpectateHandler.TYPE = "spectate";
+
+module.exports = SpectateHandler;

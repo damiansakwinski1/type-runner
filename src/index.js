@@ -29,7 +29,9 @@
   const Highscores = require("./engine/handler/highscores");
   const Games = require("./engine/games");
   const db = await require("./connection");
-  const highscoreRepository = require("./repositories/highscoreRepository")(db);
+  const highscoresRepository = require("./repositories/highscore-repository")(
+    db
+  );
   const messagesToSocketStream$ = new Subject();
 
   process.on("unhandledRejection", err => {
@@ -42,15 +44,32 @@
     process.exit(1);
   });
 
-  const games = new Games(highscoreRepository);
+  const gamesConfig = {
+    GAME_REMOVE_TIME: process.env.GAME_REMOVE_TIME || 4 * 60 * 1000,
+    MINIMUM_PLAYERS: process.env.MINIMUM_PLAYERS || 2,
+    MAXIMUM_PLAYERS: process.env.MAXIMUM_PLAYERS || 4,
+    LOCK_COUNTDOWN: process.env.LOCK_COUNTDOWN || 5000,
+    PRE_LOCK_COUNTDOWN: process.env.PRE_LOCK_COUNTDOWN || 10000,
+    GAME_TICK: process.env.GAME_TICK || 30000,
+    MAX_GAME_TICKS: process.env.MAX_GAME_TICKS || 6
+  };
+
+  const games = new Games(gamesConfig, highscoresRepository);
 
   const handlers = new Handlers({
-    "join-game": new JoinGame(games, messagesToSocketStream$),
-    "player-status": new PlayerStatus(games, messagesToSocketStream$),
-    spectate: new Spectate(games, messagesToSocketStream$),
-    highscores: new Highscores(games, messagesToSocketStream$),
-    "leave-game": new LeaveGame(games, messagesToSocketStream$),
-    "join-practice": new JoinPractice(games, messagesToSocketStream$),
+    [JoinGame.TYPE]: new JoinGame(
+      games,
+      highscoresRepository,
+      messagesToSocketStream$
+    ),
+    [PlayerStatus.TYPE]: new PlayerStatus(games, messagesToSocketStream$),
+    [Spectate.TYPE]: new Spectate(games, messagesToSocketStream$),
+    [Highscores.TYPE]: new Highscores(
+      highscoresRepository,
+      messagesToSocketStream$
+    ),
+    [LeaveGame.TYPE]: new LeaveGame(games, messagesToSocketStream$),
+    [JoinPractice.TYPE]: new JoinPractice(games, messagesToSocketStream$)
   });
 
   const filterMessages = messages => message => {
@@ -73,7 +92,7 @@
 
     socket.on("disconnect", async () => {
       await handlers.handle({
-        type: "leave-game",
+        type: LeaveGame.TYPE,
         socketId: socket.id
       });
     });
