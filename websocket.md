@@ -32,7 +32,7 @@ Each message has a format of:
 
 ```
 {
-  type: 'join-game',
+  type: 'join-practice',
   payload: {
     name: <username>
   }
