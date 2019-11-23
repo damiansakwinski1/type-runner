@@ -2,6 +2,7 @@ const { states } = require("./game-state");
 const { v4 } = require("uuid");
 const { EventEmitter } = require("events");
 const { texts } = require("../../texts");
+const { PRACTICE } = require("./game-types");
 
 const MINIMUM_PLAYERS = 2;
 const MAXIMUM_PLAYERS = 4;
@@ -11,7 +12,7 @@ const GAME_TICK = 30000;
 const MAX_GAME_TICKS = 6;
 
 class Game extends EventEmitter {
-  constructor() {
+  constructor(type) {
     super();
     this.id = v4();
     this.players = [];
@@ -24,6 +25,7 @@ class Game extends EventEmitter {
     this.maxGameLength = (GAME_TICK / 1000) * MAX_GAME_TICKS;
     this.gameLength = (GAME_TICK / 1000) * MAX_GAME_TICKS;
     this.winner = null;
+    this.type = type;
   }
 
   getId() {
@@ -38,6 +40,10 @@ class Game extends EventEmitter {
     return this.players.find(player => player.getId() === id);
   }
 
+  getType() {
+    return this.type;
+  }
+
   openForPlayers() {
     return (
       this.state === states.WAITING_FOR_PLAYERS ||
@@ -46,7 +52,7 @@ class Game extends EventEmitter {
   }
 
   hasEnoughPlayers() {
-    return this.players.length >= MINIMUM_PLAYERS;
+    return this.type === PRACTICE || this.players.length >= MINIMUM_PLAYERS;
   }
 
   isRunning() {
@@ -104,6 +110,7 @@ class Game extends EventEmitter {
 
   lock() {
     this.state = states.LOCKED;
+    this.currentCountdown = (LOCK_COUNTDOWN) / 1000;
     this.text = texts[Math.floor(Math.random() * texts.length)];
     this.emit("game-locked", this.text);
 
