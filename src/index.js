@@ -83,15 +83,15 @@
   const spectatorMessages = filterMessages(["joined-game"]);
 
   io.on("connection", socket => {
-    socket.on("message", async message => {
-      await handlers.handle({
+    socket.on("message", message => {
+      handlers.handle({
         ...message,
         socketId: socket.id
       });
     });
 
-    socket.on("disconnect", async () => {
-      await handlers.handle({
+    socket.on("disconnect", () => {
+      handlers.handle({
         type: LeaveGame.TYPE,
         socketId: socket.id
       });
