@@ -1,46 +1,61 @@
-const Game = require('./game');
-const { NORMAL, PRACTICE } = require('./game-types');
-
-const GAME_REMOVE_TIME = 4 * 60 * 1000;
+const OpenGame = require("./games/open-game");
+const PracticeGame = require("./games/practice-game");
 
 class Games {
-  constructor(highScoreRepository) {
+  constructor(config, highScoresRepository) {
     this.openGames = {};
     this.runningGames = {};
     this.practiceGames = {};
     this.spectators = [];
-    this.highscores = highScoreRepository;
+    this.highScoresRepository = highScoresRepository;
+    this.config = config;
   }
 
-  newGame() {
-    const game = new Game(NORMAL);
+  newOpenGame() {
+    const game = new OpenGame(
+      {
+        MINIMUM_PLAYERS: this.config.MINIMUM_PLAYERS,
+        MAXIMUM_PLAYERS: this.config.MAXIMUM_PLAYERS,
+        LOCK_COUNTDOWN: this.config.LOCK_COUNTDOWN,
+        PRE_LOCK_COUNTDOWN: this.config.PRE_LOCK_COUNTDOWN,
+        GAME_TICK: this.config.GAME_TICK,
+        MAX_GAME_TICKS: this.config.MAX_GAME_TICKS
+      },
+      this.highScoresRepository
+    );
 
     this.openGames[game.getId()] = game;
 
     return game;
   }
 
-  newPractice() {
-    const game = new Game(PRACTICE);
+  newPracticeGame() {
+    const game = new PracticeGame({
+      GAME_TICK: this.config.GAME_TICK,
+      MAX_GAME_TICKS: this.config.MAX_GAME_TICKS,
+      LOCK_COUNTDOWN: this.config.LOCK_COUNTDOWN,
+      MINIMUM_PLAYERS: 1,
+      MAXIMUM_PLAYERS: 1
+    });
+
     this.practiceGames[game.getId()] = game;
     return game;
   }
 
   run(game) {
     const id = game.getId();
-    const type = game.getType();
 
-    switch (type) {
-      case NORMAL:
+    switch (game.constructor) {
+      case OpenGame:
         this.runningGames[id] = this.openGames[id];
         delete this.openGames[id];
         break;
-      case PRACTICE:
+      case PracticeGame:
         this.runningGames[id] = this.practiceGames[id];
         delete this.practiceGames[id];
         break;
       default:
-        throw new Error('Invalid game type')
+        throw new Error("Invalid game type");
     }
 
     this.runningGames[id].startGameTime();
@@ -56,12 +71,14 @@ class Games {
       if (this.runningGames[gameId]) {
         delete this.runningGames[gameId];
       }
-    }, GAME_REMOVE_TIME);
+    }, this.config.GAME_REMOVE_TIME);
   }
 
-  finishGame(id) {
-    this.runningGames[id].removeAllListeners();
+  async finishGame(id) {
+    const score = await this.runningGames[id].finish();
     delete this.runningGames[id];
+
+    return score;
   }
 
   findOpenGame() {
@@ -92,15 +109,6 @@ class Games {
 
   getGameById(gameId) {
     return this.runningGames[gameId];
-  }
-
-  addScore(name, score) {
-    this.highscores.addHighScore(name, score);
-  }
-
-  async getHighscores() {
-    const highScores = await this.highscores.getHighScores();
-    return highScores || [];
   }
 }
 
